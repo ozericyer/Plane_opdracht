@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Welcome to the our Planes</title>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script>
+        function getData() {
+
+            console.log('getting data...');
+
+            // Get data from backend.
+            $.ajax({
+                url: 'http://localhost:8080/api/planes/all',
+                type: 'get',
+                success: function(data) {
+                    console.log('data get success');
+                    console.log(data);
+
+                    $('#planes').text('');
+
+                    var planeText = 'These are all the planes: ';
+
+                    // Loop over data.
+                    $.each(data, function(index, value) {
+                        console.log(value.name + ' - ' + value.captain);
+                        planeText = planeText + ' ' + value.name + ' - ' + value.captain + '. ';
+                    });
+
+                    $('#planes').text(planeText);
+                }
+            });
+            
+        }
+
+        function postData() {
+
+            console.log("posting data...");
+
+            // Check if name and captain are not empty.
+            if(!$("#inputName").val() || !$("#inputCaptain").val()) {
+                // No value.
+                console.log("input has no value");
+                $("#error").text("Some or all input fields have no value!");
+            }
+            else {
+                $("#error").text("");
+                
+                var nameFromInput = $("#inputName").val();
+                var captainFromInput = $("#inputCaptain").val();
+                console.log('Name ingevoerd: ' + nameFromInput);
+                console.log('Captain ingevoerd: ' + captainFromInput);
+
+                // JavaScript/JQuery data to JSON.
+
+                // JavaScript variables to JavaScript Object.
+                var plane = {
+                    name : nameFromInput,
+                    captain : captainFromInput
+                };
+                console.log(plane);
+
+                // JavaScript Object to JSON String.
+                var planeJson = JSON.stringify(plane);
+                console.log(planeJson);
+
+                // Do POST request with body.
+                $.ajax({
+                    url: 'http://localhost:8080/api/planes/new',
+                    type: 'post',
+                    data: planeJson,
+                    contentType: "application/json",
+                    success: function(data) {                    
+                        console.log('data post success');
+                        getData();
+                        // Reset form.
+                        $("#inputName").val('');
+                        $("#inputCaptain").val('');
+                    }
+                });
+            }            
+        }        
+
+        $(document).ready(function() {
+            // Do these things when the webpage is loaded.
+            getData();            
+        });
+
+    </script>
+</head>
+<body>
+
+<h1>Planes</h1>
+
+<label for="inputName">Name of Plane</label></br>
+<input type="text" id="inputName" name="inputName">
+</br></br>
+<label for="inputCaptain">Captain of Plane</label></br>
+<input type="text" id="inputCaptain" name="inputCaptain">
+</br></br>
+<p id="error" style="color: red;" ></p>
+
+<button onclick="postData()">Post it!</button>
+</br></br>
+
+<!-- Show the plane in html -->
+<p id="planes">No data...</p>
+
+</body>
+</html>
